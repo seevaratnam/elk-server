@@ -14,6 +14,8 @@ Here is what we will have by the time we finish setting up the jumbox in this se
 ![jumpbox design](Images/jumpbox.png)
 
 #### install ansible
+We will be setting up `ansible` in this section.
+![ansible design](Images/ansible.png)
 
 #### terraform instances - for web servers
 
