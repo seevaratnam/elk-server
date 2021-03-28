@@ -11,7 +11,7 @@ Let's start :sparkles:
 
 #### terraform a jumpbox
 Here is what we will have by the time we finish setting up the jumbox in this section.
-![jumpbox design](Images/jumpbox.png)
+![jumpbox design](Images/jumpbox.png){ width=50% }
 
 #### install ansible
 
