@@ -5,12 +5,181 @@ The files in this repository were used to configure the network depicted below.
 
 ![TODO: Update the path with the name of your diagram](Images/elk-complete-diagram.png)
 
-These files have been tested and used to generate a live ELK deployment on Azure. They can be used to either recreate the entire deployment pictured above. Alternatively, select portions of the _____ file may be used to install only certain pieces of it, such as Filebeat.
+These files have been tested and used to generate a live ELK deployment on Azure. They can be used to either recreate the entire deployment pictured above. Alternatively, select portions of the ansible playbook files may be used to install only certain pieces of it, such as Filebeat.
 
-  - _TODO: Enter the playbook file._
+  - _[PenTest Playbook](Ansible/pentest.yml)_
+  ```yaml
+  ---
+  - name: Config Web VM with Docker
+    hosts: webservers
+    become: true
+    tasks:
+
+    - name: docker.io
+      apt:
+        update_cache: yes
+        name: docker.io
+        state: present
+
+    - name: Install pip3
+      apt:
+        name: python3-pip
+        state: present
+
+    - name: Install Python Docker Module
+      pip:
+        name: docker
+        state: present
+
+    - name: download and launch a docker web container
+      docker_container:
+        name: dvw
+        image: cyberxsecurity/dvwa
+        state: started
+        restart_policy: always
+        published_ports: 80:80
+
+    - name: enable docker at startup
+      service:
+        name: docker
+        enabled: true
+
+  ```
+  - _[Elk Playbook](Ansible/elk.yml)_
+  ```yaml
+  ---
+  - name: Config ELK VM with Docker
+    hosts: elkservers
+    become: true
+    tasks:
+    # Usee apt module
+    - name: Install docker.io
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        name: docker.io
+        state: present
+
+    # Use apt module
+    - name: Install pip3
+      apt:
+        force_apt_get: yes
+        name: python3-pip
+        state: present
+
+    # Use pip module (It will default to pip3)
+    - name: Install Python Docker Module
+      pip:
+        name: docker
+        state: present
+
+    # Use sysctl module
+    - name: Use more memory
+      sysctl:
+        name: vm.max_map_count
+        value: '262144'
+        state: present
+        reload: yes
+
+    - name: download and launch a docker elk container
+      docker_container:
+        name: elk
+        image: sebp/elk:761
+        state: started
+        restart_policy: always
+        published_ports:
+          - 5601:5601
+          - 9200:9200
+          - 5044:5044
+
+    - name: enable docker at startup
+      service:
+        name: docker
+        enabled: true
+  ```
+  - _[FileBeat Playbook](Ansible/filebeat-playbook.yml)_
+  ```yaml
+  ---
+- name: installing and launching filebeat
+  hosts: webservers
+  become: yes
+  tasks:
+
+    # Use command moudle
+  - name: download filebeat deb
+    command: curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.6.1-amd64.deb
+    
+    # Use command moudle
+  - name: install filebeat deb
+    command: dpkg -i filebeat-7.6.1-amd64.deb
+
+    # Use copy moudle
+  - name: drop in filebeat.yml
+    copy:
+      src: /etc/ansible/files/filebeat-config.yml
+      dest: /etc/filebeat/filebeat.yml
+
+    # Use command moudle
+  - name: enable and configure system module
+    command: filebeat modules enable system 
+
+    # Use command moudle
+  - name: setup filebeat
+    command: filebeat setup
+
+    # Use command moudle
+  - name: start filebeat service
+    command: service filebeat start
+
+    # Use systemd module
+  - name: enable service filebeat on boot
+    systemd:
+      name: filebeat
+      enabled: yes
+  ```
+  - _[MetricBeat Playbook](Ansible/metricbeat-playbook.yml)_
+  ```yaml
+  ---
+- name: Install metric beat
+  hosts: webservers
+  become: true
+  tasks:
+    # Use command moudle
+  - name: Download metricbeat
+    command: curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-7.6.1-amd64.deb
+
+    # Use command module
+  - name: install metricbeat
+    command: dpkg -i metricbeat-7.6.1-amd64.deb
+
+    # Use copy moudle
+  - name: drop in metricbeat config
+    copy:
+      src: /etc/ansible/files/metricbeat-config.yml
+      dest: /etc/metricbeat/metricbeat.yml
+
+    # Use command module
+  - name: enable and configure docker module for metric beat
+    command: metricbeat modules enable docker
+
+    # Use command module
+  - name: setup metric beat
+    command: metricbeat setup
+
+    # Use command module
+  - name: start metric beat
+    command: service metricbeat start
+
+    # Use systemd module 
+  - name: enable service metricbeat on boot
+    systemd:
+      name: metricbeat
+      enabled: yes 
+
+  ```
 
 This document contains the following details:
-- Description of the Topologu
+- Description of the Topology
 - Access Policies
 - ELK Configuration
   - Beats in Use
@@ -22,22 +191,25 @@ This document contains the following details:
 
 The main purpose of this network is to expose a load-balanced and monitored instance of DVWA, the D*mn Vulnerable Web Application.
 
-Load balancing ensures that the application will be highly _____, in addition to restricting _____ to the network.
-- _TODO: What aspect of security do load balancers protect? What is the advantage of a jump box?_
+Load balancing ensures that the application will be highly available, in addition to restricting access to the network.
 
-Integrating an ELK server allows users to easily monitor the vulnerable VMs for changes to the _____ and system _____.
-- _TODO: What does Filebeat watch for?_
-- _TODO: What does Metricbeat record?_
+- _The Load Balancer distributes incoming internet requests to all three Web Server instances. DDoS Protection Standard is enabled on the virtual network of the Azure (internet) load balancer that has the public IP associated with it.  Jumphosts aks Bastion servers are part of the "security by obsecurity" approach, they are usually part of the infrastructure but outside of the assumed attach vector. In our example of using Web Servers, Web Servers would only accept requests via a list of specific servers, Web Servers are easily found on the internet as they expose ports and host services, like a website. The Jumpbox's only purpose is to provide access to those Web Servers, and does NOT offer any public services._
+
+Integrating an ELK server allows users to easily monitor the vulnerable VMs for changes to the network and system logs & metrics.
+
+- _Filebeat is a lightweight shipper for forwarding and centralizing log data. Installed as an agent on your servers, Filebeat monitors the log files or locations that you specify, collects log events, and forwards them either to ELK server for indexing._
+
+- _Metricbeat is a lightweight shipper that you can install on your servers to periodically collect metrics from the operating system and from services/docker running on the Web Servers. Metricbeat takes the metrics and statistics that it collects and ships them to the ELK server._
 
 The configuration details of each machine may be found below.
-_Note: Use the [Markdown Table Generator](http://www.tablesgenerator.com/markdown_tables) to add/remove values from the table_.
 
-| Name     | Function | IP Address | Operating System |
-|----------|----------|------------|------------------|
-| Jump Box | Gateway  | 10.0.0.1   | Linux            |
-| TODO     |          |            |                  |
-| TODO     |          |            |                  |
-| TODO     |          |            |                  |
+| Name     | Function   | IP Address | Operating System |
+|----------|------------|------------|------------------|
+| Jump Box | Gateway    | 10.0.0.4   | Linux            |
+| Web-1    | Web Server | 10.0.0.5   | Linux            |
+| Web-2    | Web Server | 10.0.0.6   | Linux            |
+| Web-3    | Web Server | 10.0.0.10  | Linux            |
+| ELKVM    | ELK Server | 10.1.0.7   | Linux            |
 
 ### Access Policies
 
