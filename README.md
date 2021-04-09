@@ -3,7 +3,7 @@
 The files in this repository were used to configure the network depicted below.
  
 
-![TODO: Update the path with the name of your diagram](Images/elk-complete-diagram.png)
+![ELK Complete Diagram](Images/elk-final-diagram.png)
 
 These files have been tested and used to generate a live ELK deployment on Azure. They can be used to either recreate the entire deployment pictured above. Alternatively, select portions of the ansible playbook files may be used to install only certain pieces of it, such as Filebeat.
 
@@ -203,66 +203,179 @@ Integrating an ELK server allows users to easily monitor the vulnerable VMs for 
 
 The configuration details of each machine may be found below.
 
-| Name     | Function   | IP Address | Operating System |
-|----------|------------|------------|------------------|
-| Jump Box | Gateway    | 10.0.0.4   | Linux            |
-| Web-1    | Web Server | 10.0.0.5   | Linux            |
-| Web-2    | Web Server | 10.0.0.6   | Linux            |
-| Web-3    | Web Server | 10.0.0.10  | Linux            |
-| ELKVM    | ELK Server | 10.1.0.7   | Linux            |
+| Name     | Function   | IP Address               | Operating System |
+|----------|------------|--------------------------|------------------|
+| Jump Box | Gateway    | 10.0.0.4/40.121.163.132  | Linux            |
+| Web-1    | Web Server | 10.0.0.5                 | Linux            |
+| Web-2    | Web Server | 10.0.0.6                 | Linux            |
+| Web-3    | Web Server | 10.0.0.10                | Linux            |
+| ELKVM    | ELK Server | 10.1.0.7/52.151.46.191   | Linux            |
 
 ### Access Policies
 
 The machines on the internal network are not exposed to the public Internet. 
 
-Only the _____ machine can accept connections from the Internet. Access to this machine is only allowed from the following IP addresses:
-- _TODO: Add whitelisted IP addresses_
+Only the Jump Box machine can accept connections from the Internet. Access to this machine is only allowed from the following IP addresses:
+- _99.244.XXX.XXX/32 - Personal Home IP Address_
 
-Machines within the network can only be accessed by _____.
+Machines within the network can only be accessed by SSH protocol.
 - _TODO: Which machine did you allow to access your ELK VM? What was its IP address?_
+- _ELK VM can only be access from the Jump Box using SSH from the IP address 10.0.0.4 (Jump Box).  And ELK dashboard (via Port 5601) can only be access via a public IP address of the ELK VM from the Personal Home IP Address?_
 
 A summary of the access policies in place can be found in the table below.
 
-| Name     | Publicly Accessible | Allowed IP Addresses |
-|----------|---------------------|----------------------|
-| Jump Box | Yes/No              | 10.0.0.1 10.0.0.2    |
-|          |                     |                      |
-|          |                     |                      |
+| Name          | Port | Publicly Accessible   | Allowed IP Address             |
+|---------------|------|-----------------------|--------------------------------|
+| Jump Box      | 22   | Yes                   | *Personal IP*                  |
+| Web-1         | 22   | No                    | 10.0.0.4 - Jump Box            |
+| Web-1         | 80   | Yes vai Load Balancer | 40.121.151.226 - Load Balancer |
+| Web-2         | 22   | No                    | 10.0.0.4 - Jump Box            |
+| Web-2         | 80   | Yes vai Load Balancer | 40.121.151.226 - Load Balancer |
+| Web-3         | 22   | No                    | 10.0.0.4 - Jump Box            |
+| Web-3         | 80   | Yes vai Load Balancer | 40.121.151.226 - Load Balancer |
+| ELKVM         | 22   | No                    | 10.0.0.4 - Jump Box            |
+| ELKVM         | 5601 | Yes                   | *Personal IP*                  |
+| Load Balancer |      | Yes                   | Open                           |
 
 ### Elk Configuration
 
 Ansible was used to automate configuration of the ELK machine. No configuration was performed manually, which is advantageous because...
-- _TODO: What is the main advantage of automating configuration with Ansible?_
+- _it allows us make deploying entire application environments easy, predictable, and repeatable. and also updates multiple identifical servers with a single playbook yaml file quickly without having to go into each servers. Instead of relying on a software agent on each remote managed host, Ansible relies on the trusted management ports already in use by IT teams to manage servers and infrastructure: secure shell (SSH) on Linux, and Windows Remote Management (WinRM) on Microsoft -based systems._
 
 The playbook implements the following tasks:
-- _TODO: In 3-5 bullets, explain the steps of the ELK installation play. E.g., install Docker; download image; etc._
-- ...
-- ...
+- _Installs docker.io, python3-pip
+- _Starts docker
+- _Pulls the cyberxsecurity/dvwa docker image and enable docker on startup_
+- _Increases the virtual memory for the ELK server using sysctl module_
+- _Downloads the sebp/elk:761 docker image and launches the ELK container_
+- _Installs and launches filebeat & metricbeat on the ELK VM_
 
 The following screenshot displays the result of running `docker ps` after successfully configuring the ELK instance.
 
-**Note**: The following image link needs to be updated. Replace `docker_ps_output.png` with the name of your screenshot image file.  
-
-
-![TODO: Update the path with the name of your screenshot of docker ps output](Images/docker_ps_output.png)
+![ELK VM screenshot of docker ps output](Images/docker_ps_output.png)
 
 ### Target Machines & Beats
+
 This ELK server is configured to monitor the following machines:
-- _TODO: List the IP addresses of the machines you are monitoring_
+
+| Name     | Function   | IP Address | Operating System |
+|----------|------------|------------|------------------|
+| Web-1    | Web Server | 10.0.0.5   | Linux            |
+| Web-2    | Web Server | 10.0.0.6   | Linux            |
+| Web-3    | Web Server | 10.0.0.10  | Linux            |
 
 We have installed the following Beats on these machines:
-- _TODO: Specify which Beats you successfully installed_
+- _Filebeat_
+- _Metricbeat_
 
 These Beats allow us to collect the following information from each machine:
-- _TODO: In 1-2 sentences, explain what kind of data each beat collects, and provide 1 example of what you expect to see. E.g., `Winlogbeat` collects Windows logs, which we use to track user logon events, etc._
+- _Filebeat is a log data shipper for local files. Installed as an agent on your servers, Filebeat monitors the log directories or specific log files, tails the files, and forwards them either to Elasticsearch or Logstash for indexing._
+- _Metricbeats module fetches metrics from Docker containers. The default metricsets are: container, cpu, diskio, healthcheck, info, memory and network. The image metricset is not enabled by default._
 
 ### Using the Playbook
 In order to use the playbook, you will need to have an Ansible control node already configured. Assuming you have such a control node provisioned: 
 
 SSH into the control node and follow the steps below:
-- Copy the _____ file to _____.
-- Update the _____ file to include...
-- Run the playbook, and navigate to ____ to check that the installation worked as expected.
+- Copy the ansible playbook files (pentest.yml, elk.yml, filebeat-playbook.yml, metricbeat-playbook.yml) to /etc/ansible/roles folder.
+- Copy the metricbeat-config.yml and filebeat-config.yml files to /etc/ansible/files folder
+- Update the /etc/ansible/hosts file to include the webservers and elk server as follows:
+
+```ini
+[webservers]
+10.0.0.5 ansible_python_interpreter=/usr/bin/python3
+10.0.0.6 ansible_python_interpreter=/usr/bin/python3
+10.0.0.10 ansible_python_interpreter=/usr/bin/python3
+
+[elkservers]
+10.1.0.7 ansible_python_interpreter=/usr/bin/python3
+```
+- Update the /etc/ansible/ansible.cfg to have the remote_user as follows:
+
+```ini
+remote_user = sysadmin
+```
+
+- Update the /etc/ansible/files/filebeat-config.yml to point to the Elasticsearch as follows:
+
+```ini
+1104 output.elasticsearch:
+1105 hosts: ["10.1.0.7:9200"] 
+1106 username: "elastic"
+1107 password: "changeme"
+```
+
+- Update the /etc/ansible/files/metricbeat-config.yml with the Kibana endpoint configuration as follows:
+
+```ini
+1804 setup.kibana:
+1805 host: "10.1.0.7:5601"
+```
+
+- Update the /etc/ansible/files/metricbeat-config.yml to point to the Elasticsearch as follows:
+
+```ini
+93 output.elasticsearch:
+94 hosts: ["10.1.0.7:9200"] 
+95 username: "elastic"
+97 password: "changeme"
+```
+
+- Update the /etc/ansible/files/filebeat-config.yml with the Kibana endpoint configuration as follows:
+
+```ini
+61 setup.kibana:
+62 host: "10.1.0.7:5601"
+```
+- Run the following ansible command to make sure ansible can ping all the servers in the /etc/ansible/hosts file:
+
+```bash
+ansible -m ping all
+
+output:
+
+10.1.0.7 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+10.0.0.6 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+10.0.0.5 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+10.0.0.10 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+```
+- Run the `elk.yml` playbook using the following command:
+```bash
+ansible-playbook elk.yml
+```
+- Navigate to http://52.151.46.191:5601/app/kibana to check that the installation worked as expected.
+
+![Kibana Dashboard](Images/kibana_dashboard.png)
+
+- Run the `/etc/ansible/roles/elk.yml` playbook using the following command:
+```bash
+ansible-playbook elk.yml
+```
+- Navigate to http://52.151.46.191:5601/app/kibana to check that the installation worked as expected.
+
+![Kibana Dashboard](Images/kibana_dashboard.png)
+
+- Run the `/etc/ansible/roles/filebeat-playbook.yml` playbook using the following command:
+```bash
+ansible-playbook filebeat-playbook.yml
+```
+![Filebeat playbook](Images/filebeat-playbook.png)
+
+- Navigate to dashboard and check that the installation worked as exected:
+![Filebeat output](Images/filebeat-playbook-output.png)
+
+
 
 _TODO: Answer the following questions to fill in the blanks:_
 - _Which file is the playbook? Where do you copy it?_
