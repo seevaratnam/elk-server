@@ -350,17 +350,10 @@ output:
     "ping": "pong"
 }
 ```
-- Run the `elk.yml` playbook using the following command:
-```bash
-ansible-playbook elk.yml
-```
-- Navigate to http://52.151.46.191:5601/app/kibana to check that the installation worked as expected.
-
-![Kibana Dashboard](Images/kibana_dashboard.png)
 
 - Run the `/etc/ansible/roles/elk.yml` playbook using the following command:
 ```bash
-ansible-playbook elk.yml
+ansible-playbook /etc/ansible/roles/elk.yml
 ```
 - Navigate to http://52.151.46.191:5601/app/kibana to check that the installation worked as expected.
 
@@ -368,18 +361,24 @@ ansible-playbook elk.yml
 
 - Run the `/etc/ansible/roles/filebeat-playbook.yml` playbook using the following command:
 ```bash
-ansible-playbook filebeat-playbook.yml
+ansible-playbook /etc/ansible/roles/filebeat-playbook.yml
 ```
 ![Filebeat playbook](Images/filebeat-playbook.png)
 
-- Navigate to dashboard and check that the installation worked as exected:
+- Navigate to setup dashboard and check that the installation worked as exected:
 ![Filebeat output](Images/filebeat-playbook-output.png)
 
+- Navigate to log dashboard and check that the installation worked as exected:
+![Filebeat dashboard](Images/filebeat-playbook-dashboard.png)
 
+- Run the `/etc/ansible/roles/metricbeat-playbook.yml` playbook using the following command:
+```bash
+ansible-playbook /etc/ansible/roles/metricbeat-playbook.yml
+```
+![Metricbeat playbook](Images/metricbeat-playbook.png)
 
-_TODO: Answer the following questions to fill in the blanks:_
-- _Which file is the playbook? Where do you copy it?_
-- _Which file do you update to make Ansible run the playbook on a specific machine? How do I specify which machine to install the ELK server on versus which to install Filebeat on?_
-- _Which URL do you navigate to in order to check that the ELK server is running?
+- Navigate to setup dashboard and check that the installation worked as exected:
+![Metricbeat output](Images/metricbeat-playbook-output.png)
 
-_As a **Bonus**, provide the specific commands the user will need to run to download the playbook, update the files, etc._
+- Navigate to metric dashboard and check that the installation worked as exected:
+![Metricbeat dashboard](Images/metricbeat-playbook-dashboard.png)
