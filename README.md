@@ -280,6 +280,7 @@ SSH into the control node and follow the steps below:
 - Copy the metricbeat-config.yml and filebeat-config.yml files to /etc/ansible/files folder
 - Update the /etc/ansible/hosts file to include the webservers and elk server as follows:
 
+#### Ansible Configuration
 ```ini
 [webservers]
 10.0.0.5 ansible_python_interpreter=/usr/bin/python3
@@ -350,6 +351,9 @@ output:
     "ping": "pong"
 }
 ```
+***
+### Ansible Playbook - Elk Server
+***
 
 - Run the `/etc/ansible/roles/elk.yml` playbook using the following command:
 ```bash
@@ -357,28 +361,42 @@ ansible-playbook /etc/ansible/roles/elk.yml
 ```
 - Navigate to http://52.151.46.191:5601/app/kibana to check that the installation worked as expected.
 
-![Kibana Dashboard](Images/kibana_dashboard.png)
+<img src="Images/kibana_dashboard.png" width="50%">
+
+***
+### Ansible Playbook - Filebeat
+***
 
 - Run the `/etc/ansible/roles/filebeat-playbook.yml` playbook using the following command:
 ```bash
 ansible-playbook /etc/ansible/roles/filebeat-playbook.yml
 ```
-![Filebeat playbook](Images/filebeat-playbook.png)
+
+<img src="Images/filebeat-playbook.png" width="50%">
 
 - Navigate to setup dashboard and check that the installation worked as exected:
-![Filebeat output](Images/filebeat-playbook-output.png)
+
+<img src="Images/filebeat-playbook-output.png" width="50%">
 
 - Navigate to log dashboard and check that the installation worked as exected:
-![Filebeat dashboard](Images/filebeat-playbook-dashboard.png)
+
+<img src="Images/filebeat-playbook-dashboard.png" width="50%">
+
+***
+### Ansible Playbook - Metricbeat
+***
 
 - Run the `/etc/ansible/roles/metricbeat-playbook.yml` playbook using the following command:
 ```bash
 ansible-playbook /etc/ansible/roles/metricbeat-playbook.yml
 ```
-![Metricbeat playbook](Images/metricbeat-playbook.png)
+
+<img src="Images/metricbeat-playbook.png" width="50%">
 
 - Navigate to setup dashboard and check that the installation worked as exected:
-![Metricbeat output](Images/metricbeat-playbook-output.png)
+
+<img src="Images/metricbeat-playbook-output.png" width="50%">
 
 - Navigate to metric dashboard and check that the installation worked as exected:
-![Metricbeat dashboard](Images/metricbeat-playbook-dashboard.png)
+
+<img src="Images/metricbeat-playbook-dashboard.png" width="50%">
