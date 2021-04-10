@@ -179,15 +179,15 @@ These files have been tested and used to generate a live ELK deployment on Azure
   ```
 
 This document contains the following details:
-- Description of the Topology
-- Access Policies
-- ELK Configuration
-  - Target Machines & Beats
-- How to Use the Ansible Build
-  - Ansible Configuration
-  - Ansible Playbook - Elk Server
-  - Ansible Playbook - Filebeat
-  - Ansible Playbook - Metricbeat
+- [Description of the Topology](#description-of-the-topology)
+- [Access Policies](#access-policies)
+- [ELK Configuration](#elk-configuration)
+  - [Target Machines and Beats](#target-machines-and-beats)
+- [How to Use the Ansible Build](#how-to-use-the-ansible-build)
+  - [Ansible Configuration](#ansible-configuration)
+  - [Ansible Playbook for Elk Server](#ansible-playbook-for-elk-server)
+  - [Ansible Playbook for Filebeat](#ansible-playbook-for-filebeat)
+  - [Ansible Playbook for Metricbeat](#ansible-playbook-for-metricbeat)
 
 
 ### Description of the Topology
@@ -256,7 +256,7 @@ The following screenshot displays the result of running `docker ps` after succes
 
 ![ELK VM screenshot of docker ps output](Images/docker_ps_output.png)
 
-### Target Machines & Beats
+### Target Machines and Beats
 
 This ELK server is configured to monitor the following machines:
 
@@ -356,7 +356,7 @@ output:
 ```
 
 ***
-### Ansible Playbook - Elk Server
+### Ansible Playbook for Elk Server
 ***
 
 - _Run the `/etc/ansible/roles/elk.yml` playbook using the following command:_
@@ -369,7 +369,7 @@ ansible-playbook /etc/ansible/roles/elk.yml
 <img src="Images/kibana_dashboard.png" width="50%">
 
 ***
-### Ansible Playbook - Filebeat
+### Ansible Playbook for Filebeat
 ***
 
 - _Run the `/etc/ansible/roles/filebeat-playbook.yml` playbook using the following command:_
@@ -388,7 +388,7 @@ ansible-playbook /etc/ansible/roles/filebeat-playbook.yml
 <img src="Images/filebeat-playbook-dashboard.png" width="50%">
 
 ***
-### Ansible Playbook - Metricbeat
+### Ansible Playbook for Metricbeat
 ***
 
 - _Run the `/etc/ansible/roles/metricbeat-playbook.yml` playbook using the following command:_
