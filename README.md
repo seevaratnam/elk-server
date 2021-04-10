@@ -182,9 +182,12 @@ This document contains the following details:
 - Description of the Topology
 - Access Policies
 - ELK Configuration
-  - Beats in Use
-  - Machines Being Monitored
+  - Target Machines & Beats
 - How to Use the Ansible Build
+  - Ansible Configuration
+  - Ansible Playbook - Elk Server
+  - Ansible Playbook - Filebeat
+  - Ansible Playbook - Metricbeat
 
 
 ### Description of the Topology
@@ -218,8 +221,7 @@ The machines on the internal network are not exposed to the public Internet.
 Only the Jump Box machine can accept connections from the Internet. Access to this machine is only allowed from the following IP addresses:
 - _99.244.XXX.XXX/32 - Personal Home IP Address_
 
-Machines within the network can only be accessed by SSH protocol.
-- _TODO: Which machine did you allow to access your ELK VM? What was its IP address?_
+Machines within the network can only be accessed by SSH protocol:
 - _ELK VM can only be access from the Jump Box using SSH from the IP address 10.0.0.4 (Jump Box).  And ELK dashboard (via Port 5601) can only be access via a public IP address of the ELK VM from the Personal Home IP Address?_
 
 A summary of the access policies in place can be found in the table below.
@@ -240,15 +242,15 @@ A summary of the access policies in place can be found in the table below.
 ### Elk Configuration
 
 Ansible was used to automate configuration of the ELK machine. No configuration was performed manually, which is advantageous because...
-- _it allows us make deploying entire application environments easy, predictable, and repeatable. and also updates multiple identifical servers with a single playbook yaml file quickly without having to go into each servers. Instead of relying on a software agent on each remote managed host, Ansible relies on the trusted management ports already in use by IT teams to manage servers and infrastructure: secure shell (SSH) on Linux, and Windows Remote Management (WinRM) on Microsoft -based systems._
+- _It allows us make deploying entire application environments easy, predictable, and repeatable. and also updates multiple identifical servers with a single playbook yaml file quickly without having to go into each servers. Instead of relying on a software agent on each remote managed host, Ansible relies on the trusted management ports already in use by IT teams to manage servers and infrastructure: secure shell (SSH) on Linux, and Windows Remote Management (WinRM) on Microsoft -based systems._
 
 The playbook implements the following tasks:
-- _Installs docker.io, python3-pip
-- _Starts docker
-- _Pulls the cyberxsecurity/dvwa docker image and enable docker on startup_
-- _Increases the virtual memory for the ELK server using sysctl module_
-- _Downloads the sebp/elk:761 docker image and launches the ELK container_
-- _Installs and launches filebeat & metricbeat on the ELK VM_
+- _Installs `docker.io, python3-pip`._
+- _Starts `docker`._
+- _Pulls the `cyberxsecurity/dvwa` docker image and `enable docker` on startup._
+- _Increases the virtual memory for the ELK server using `sysctl module`._
+- _Downloads the `sebp/elk:761` docker image and launches the ELK container._
+- _Installs and launches `filebeat & metricbeat` on the ELK VM._
 
 The following screenshot displays the result of running `docker ps` after successfully configuring the ELK instance.
 
@@ -272,13 +274,14 @@ These Beats allow us to collect the following information from each machine:
 - _Filebeat is a log data shipper for local files. Installed as an agent on your servers, Filebeat monitors the log directories or specific log files, tails the files, and forwards them either to Elasticsearch or Logstash for indexing._
 - _Metricbeats module fetches metrics from Docker containers. The default metricsets are: container, cpu, diskio, healthcheck, info, memory and network. The image metricset is not enabled by default._
 
-### Using the Playbook
+### How to Use the Ansible Build
+
 In order to use the playbook, you will need to have an Ansible control node already configured. Assuming you have such a control node provisioned: 
 
 SSH into the control node and follow the steps below:
-- Copy the ansible playbook files (pentest.yml, elk.yml, filebeat-playbook.yml, metricbeat-playbook.yml) to /etc/ansible/roles folder.
-- Copy the metricbeat-config.yml and filebeat-config.yml files to /etc/ansible/files folder
-- Update the /etc/ansible/hosts file to include the webservers and elk server as follows:
+- _Copy the ansible playbook files (pentest.yml, elk.yml, filebeat-playbook.yml, metricbeat-playbook.yml) to /etc/ansible/roles folder._
+- _Copy the metricbeat-config.yml and filebeat-config.yml files to /etc/ansible/files folder._
+- _Update the /etc/ansible/hosts file to include the webservers and elk server as follows:_
 
 #### Ansible Configuration
 ```ini
@@ -290,13 +293,13 @@ SSH into the control node and follow the steps below:
 [elkservers]
 10.1.0.7 ansible_python_interpreter=/usr/bin/python3
 ```
-- Update the /etc/ansible/ansible.cfg to have the remote_user as follows:
+- _Update the /etc/ansible/ansible.cfg to have the remote_user as follows:_
 
 ```ini
 remote_user = sysadmin
 ```
 
-- Update the /etc/ansible/files/filebeat-config.yml to point to the Elasticsearch as follows:
+- _Update the /etc/ansible/files/filebeat-config.yml to point to the Elasticsearch as follows:_
 
 ```ini
 1104 output.elasticsearch:
@@ -305,14 +308,14 @@ remote_user = sysadmin
 1107 password: "changeme"
 ```
 
-- Update the /etc/ansible/files/metricbeat-config.yml with the Kibana endpoint configuration as follows:
+- _Update the /etc/ansible/files/metricbeat-config.yml with the Kibana endpoint configuration as follows:_
 
 ```ini
 1804 setup.kibana:
 1805 host: "10.1.0.7:5601"
 ```
 
-- Update the /etc/ansible/files/metricbeat-config.yml to point to the Elasticsearch as follows:
+- _Update the /etc/ansible/files/metricbeat-config.yml to point to the Elasticsearch as follows:_
 
 ```ini
 93 output.elasticsearch:
@@ -321,13 +324,13 @@ remote_user = sysadmin
 97 password: "changeme"
 ```
 
-- Update the /etc/ansible/files/filebeat-config.yml with the Kibana endpoint configuration as follows:
+- _Update the /etc/ansible/files/filebeat-config.yml with the Kibana endpoint configuration as follows:_
 
 ```ini
 61 setup.kibana:
 62 host: "10.1.0.7:5601"
 ```
-- Run the following ansible command to make sure ansible can ping all the servers in the /etc/ansible/hosts file:
+- _Run the following ansible command to make sure ansible can ping all the servers in the /etc/ansible/hosts file:_
 
 ```bash
 ansible -m ping all
@@ -351,15 +354,17 @@ output:
     "ping": "pong"
 }
 ```
+
 ***
 ### Ansible Playbook - Elk Server
 ***
 
-- Run the `/etc/ansible/roles/elk.yml` playbook using the following command:
+- _Run the `/etc/ansible/roles/elk.yml` playbook using the following command:_
+
 ```bash
 ansible-playbook /etc/ansible/roles/elk.yml
 ```
-- Navigate to http://52.151.46.191:5601/app/kibana to check that the installation worked as expected.
+- _Navigate to http://52.151.46.191:5601/app/kibana to check that the installation worked as expected._
 
 <img src="Images/kibana_dashboard.png" width="50%">
 
@@ -367,18 +372,18 @@ ansible-playbook /etc/ansible/roles/elk.yml
 ### Ansible Playbook - Filebeat
 ***
 
-- Run the `/etc/ansible/roles/filebeat-playbook.yml` playbook using the following command:
+- _Run the `/etc/ansible/roles/filebeat-playbook.yml` playbook using the following command:_
 ```bash
 ansible-playbook /etc/ansible/roles/filebeat-playbook.yml
 ```
 
 <img src="Images/filebeat-playbook.png" width="50%">
 
-- Navigate to setup dashboard and check that the installation worked as exected:
+- _Navigate to setup dashboard and check that the installation worked as exected:_
 
 <img src="Images/filebeat-playbook-output.png" width="50%">
 
-- Navigate to log dashboard and check that the installation worked as exected:
+- _Navigate to log dashboard and check that the installation worked as exected:_
 
 <img src="Images/filebeat-playbook-dashboard.png" width="50%">
 
@@ -386,17 +391,17 @@ ansible-playbook /etc/ansible/roles/filebeat-playbook.yml
 ### Ansible Playbook - Metricbeat
 ***
 
-- Run the `/etc/ansible/roles/metricbeat-playbook.yml` playbook using the following command:
+- _Run the `/etc/ansible/roles/metricbeat-playbook.yml` playbook using the following command:_
 ```bash
 ansible-playbook /etc/ansible/roles/metricbeat-playbook.yml
 ```
 
 <img src="Images/metricbeat-playbook.png" width="50%">
 
-- Navigate to setup dashboard and check that the installation worked as exected:
+- _Navigate to setup dashboard and check that the installation worked as exected:_
 
 <img src="Images/metricbeat-playbook-output.png" width="50%">
 
-- Navigate to metric dashboard and check that the installation worked as exected:
+- _Navigate to metric dashboard and check that the installation worked as exected:_
 
 <img src="Images/metricbeat-playbook-dashboard.png" width="50%">
